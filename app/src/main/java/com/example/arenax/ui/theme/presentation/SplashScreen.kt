@@ -1,23 +1,18 @@
 package com.example.arenax.ui.theme.presentation
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,8 +25,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    navController: NavController,
-    modifier: Modifier = Modifier.fillMaxSize()
+    navController: NavController, modifier: Modifier = Modifier.fillMaxSize()
 ) {
     LaunchedEffect(Unit) {
         delay(2000L)
@@ -42,19 +36,18 @@ fun SplashScreen(
         }
     }
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(R.drawable.img),
+                painter = painterResource(R.drawable.free_fire),
                 contentDescription = "ArenaX Logo",
-                modifier = Modifier.wrapContentSize()
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds
 
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("ArenaX", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Text("ArenaX", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 
