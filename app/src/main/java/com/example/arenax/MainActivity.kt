@@ -27,6 +27,7 @@ import com.example.arenax.ui.theme.data.BottomDest
 import com.example.arenax.ui.theme.presentation.ExploreScreen
 import com.example.arenax.ui.theme.presentation.HomeScreen
 import com.example.arenax.ui.theme.presentation.ProfileScreen
+import com.example.arenax.ui.theme.presentation.SplashScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +46,8 @@ class MainActivity : ComponentActivity() {
 
 @Preview(showBackground = true)
 @Composable
-fun ArenaXThemePreview(){
-    MaterialTheme{
+fun ArenaXThemePreview() {
+    MaterialTheme {
         HomeScreen()
     }
 }
@@ -60,9 +61,10 @@ fun MainScreen() {
     ) { innerPadding ->
         NavHost(
             navController,
-            startDestination = BottomDest.Home.route,
+            startDestination = "splash",
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable("splash") { SplashScreen(navController) }
             composable(BottomDest.Home.route) { HomeScreen() }
             composable(BottomDest.Explore.route) { ExploreScreen() }
             composable(BottomDest.Profile.route) { ProfileScreen() }
