@@ -12,12 +12,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 sealed class BottomDest(
     val route: String,
     val selectedIcon: ImageVector,
-    val UnselectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
     val label: String
 ) {
-    object Home     : BottomDest("home",     Icons.Filled.Home,  Icons.Outlined.Home ,    "Home")
-    object Explore  : BottomDest("explore",  Icons.Filled.Search,  Icons.Outlined.Search  , "Explore")
-    object Profile  : BottomDest("profile",  Icons.Filled.Person,  Icons.Outlined.Person  , "Profile")
+    object Home : BottomDest("home", Icons.Filled.Home, Icons.Outlined.Home, "Home")
+    object Explore : BottomDest("explore", Icons.Filled.Search, Icons.Outlined.Search, "Explore")
+    object Profile : BottomDest("profile", Icons.Filled.Person, Icons.Outlined.Person, "Profile")
 
-    companion object { val all = listOf(Home, Explore, Profile) }
+    companion object {
+        val all = listOf(Home, Explore, Profile)
+    }
 }
