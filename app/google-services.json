@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "809416266580",
+    "project_id": "arenax-karan",
+    "storage_bucket": "arenax-karan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809416266580:android:4e6efd8a2f2a7a05192ec1",
+        "android_client_info": {
+          "package_name": "com.example.arenax"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809416266580-jpvrf986am0u25pom53d56l5l9ngml4m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.arenax",
+            "certificate_hash": "e2d35258f74019726b300ac91a3956c484bf4fcd"
+          }
+        },
+        {
+          "client_id": "809416266580-bo3ui0hvjm1nsq8ce33a85spnjcb74v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjIJT0dA3uO-bLbX7WY18dUTypOwGT9bg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "809416266580-bo3ui0hvjm1nsq8ce33a85spnjcb74v8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
