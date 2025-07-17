@@ -29,8 +29,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("809416266580-bo3ui0hvjm1nsq8ce33a85spnjcb74v8.apps.googleusercontent.com") // Replace this!
-            .requestEmail().build()
+            .requestIdToken("809416266580-bo3ui0hvjm1nsq8ce33a85spnjcb74v8.apps.googleusercontent.com") // Your Web Client ID
+            .requestEmail()
+            .build()
+
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         setContent {
@@ -39,66 +41,96 @@ class MainActivity : ComponentActivity() {
                 val auth = FirebaseAuth.getInstance()
                 var user by remember { mutableStateOf(auth.currentUser) }
 
-                // 🔄 Automatically redirect to login if user logs out
+                // Observe auth state and redirect to login if logged out
                 LaunchedEffect(auth.currentUser) {
                     user = auth.currentUser
                     if (user == null) {
                         navController.navigate("login") {
-                            popUpTo(0) // Clear all backstack
+                            popUpTo(0)
                         }
                     }
                 }
 
-                // Google Sign-in
-                val launcher =
-                    rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                        try {
-                            val account = task.getResult(ApiException::class.java)
-                            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-                            auth.signInWithCredential(credential).addOnCompleteListener { task ->
+                // Google Sign-In Launcher
+                val launcher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) { result ->
+                    val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                    try {
+                        val account = task.getResult(ApiException::class.java)
+                        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                        auth.signInWithCredential(credential)
+                            .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
-                                    navController.navigate(BottomDest.Home.route) {
-                                        popUpTo("login") { inclusive = true }
+                                    val current = navController.currentBackStackEntry?.destination?.route
+                                    if (current == "register") {
+                                        navController.navigate("login") {
+                                            popUpTo("register") { inclusive = true }
+                                        }
+                                    } else {
+                                        navController.navigate(BottomDest.Home.route) {
+                                            popUpTo("login") { inclusive = true }
+                                        }
                                     }
                                 } else {
-                                    Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "Google Sign-In Failed", Toast.LENGTH_SHORT).show()
                                 }
                             }
-                        } catch (e: ApiException) {
-                            Toast.makeText(this, "Google Sign-In Failed", Toast.LENGTH_SHORT).show()
-                        }
+                    } catch (e: ApiException) {
+                        Toast.makeText(this, "Google Sign-In Error", Toast.LENGTH_SHORT).show()
                     }
+                }
 
-                val currentRoute = currentRoute(navController)
                 val hideBottomBarRoutes = listOf("splash", "login", "register")
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(), bottomBar = {
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        val currentRoute = currentRoute(navController)
                         if (currentRoute !in hideBottomBarRoutes) {
                             BottomBar(navController)
                         }
-                    }) { innerPadding ->
+                    }
+                ) { innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = "splash",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("splash") { SplashScreen(navController) }
+                        composable("splash") {
+                            SplashScreen(navController)
+                        }
+
                         composable("login") {
                             LoginScreen(navController) {
                                 launcher.launch(googleSignInClient.signInIntent)
                             }
                         }
-                        composable("register") { RegisterScreen(navController) }
-                        composable(BottomDest.Home.route) { HomeScreen() }
-                        composable(BottomDest.Explore.route) { ExploreScreen() }
+
+                        composable("register") {
+                            RegisterScreen(navController) {
+                                launcher.launch(googleSignInClient.signInIntent)
+                            }
+                        }
+
+                        composable(BottomDest.Home.route) {
+                            HomeScreen()
+                        }
+
+                        composable(BottomDest.Explore.route) {
+                            ExploreScreen()
+                        }
+
                         composable(BottomDest.Profile.route) {
                             ProfileScreen(
                                 onLogout = {
                                     FirebaseAuth.getInstance().signOut()
-                                    navController.navigate("login")
-                                })
+                                    googleSignInClient.signOut()
+                                    navController.navigate("login") {
+                                        popUpTo(0)
+                                    }
+                                }
+                            )
                         }
                     }
                 }

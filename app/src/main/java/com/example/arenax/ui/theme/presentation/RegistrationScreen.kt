@@ -1,27 +1,65 @@
 package com.example.arenax.ui.theme.presentation
 
-import android.widget.Toast
+import android.util.Patterns
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.arenax.R
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun RegisterScreen(navController: NavController) {
+fun RegisterScreen(navController: NavController, onGoogleClick: () -> Unit) {
     val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
     var errorText by remember { mutableStateOf<String?>(null) }
 
-    val isFormValid = password.isNotEmpty() &&
-            confirmPassword.isNotEmpty() &&
-            password == confirmPassword
+    fun validateInput(): Boolean {
+        return when {
+            email.isBlank() -> {
+                errorText = "Email cannot be empty"
+                false
+            }
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                errorText = "Invalid email format"
+                false
+            }
+            password.isBlank() -> {
+                errorText = "Password cannot be empty"
+                false
+            }
+            confirmPassword.isBlank() -> {
+                errorText = "Please confirm your password"
+                false
+            }
+            password != confirmPassword -> {
+                errorText = "Passwords do not match"
+                false
+            }
+            else -> {
+                errorText = null
+                true
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -33,7 +71,8 @@ fun RegisterScreen(navController: NavController) {
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -43,53 +82,82 @@ fun RegisterScreen(navController: NavController) {
             onValueChange = { password = it },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = null)
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = confirmPassword,
-            onValueChange = {
-                confirmPassword = it
-                errorText = if (password != it) "Passwords do not match" else null
-            },
+            onValueChange = { confirmPassword = it },
             label = { Text("Confirm Password") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = password != confirmPassword
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (confirmPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    Icon(imageVector = image, contentDescription = null)
+                }
+            },
+            isError = confirmPassword.isNotEmpty() && confirmPassword != password
         )
 
-        if (errorText != null) {
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (!errorText.isNullOrEmpty()) {
             Text(
                 text = errorText ?: "",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                    .addOnSuccessListener {
-                        navController.navigate("home") {
-                            popUpTo("register") { inclusive = true }
+                if (validateInput()) {
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnSuccessListener {
+                            navController.navigate("login") {
+                                popUpTo("register") { inclusive = true }
+                            }
                         }
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, "Registration failed: ${it.message}", Toast.LENGTH_SHORT).show()
-                    }
+                        .addOnFailureListener {
+                            errorText = it.message
+                        }
+                }
             },
-            enabled = isFormValid,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Register")
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Google Register Button
+        Button(
+            onClick = onGoogleClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.google_logo), // Place your Google logo in drawable
+                contentDescription = "Google Logo",
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 8.dp)
+            )
+            Text("Register with Google")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         TextButton(onClick = { navController.navigate("login") }) {
             Text("Already have an account? Login")
